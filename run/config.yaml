@@ -22,3 +22,9 @@ action_size : 2
 
 #hardware
 device : cuda
+
+#Environment
+ENVIRONMENT : "CartPole-v1"
+
+#RL Signals
+ACTIONS : [-0.1, 0, 0.1]
