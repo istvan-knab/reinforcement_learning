@@ -21,7 +21,7 @@ state_size : 4
 action_size : 2
 
 #hardware
-device : cuda
+DEVICE : cuda
 
 #Environment
 ENVIRONMENT : "CartPole-v1"

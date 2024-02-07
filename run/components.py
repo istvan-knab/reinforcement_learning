@@ -1,4 +1,6 @@
 import yaml
+import torch
+import gymnasium as gym
 
 from algorithms.dqn import DQN
 from algorithms.ddpg import DDPG
@@ -17,10 +19,14 @@ def read_parameters() -> dict:
 def train_model(config: dict) -> None:
     # determine algorithm
     agent = determine_algorithm(config)
+    #determine environment
+    env = gym.make(config['ENVIRONMENT'])
     for i in range(config["EPISODES"]):
         done = False
+        state, info = env.reset()
+        state = torch.tensor(state, dtype=torch.float32, device=config["DEVICE"]).unsqueeze(0)
         while not done:
-            agent.training_step()
+            agent.training_step(state)
 
 def test_model(config: dict) -> None:
     # code for training the model

@@ -6,10 +6,9 @@ class DQN(object):
         self.env = env
         self.device = device
 
-    def training_step(self):
+    def training_step(self, state):
 
-        state, info = self.env.reset()
-        state = torch.tensor(state, dtype=torch.float32, device=self.device).unsqueeze(0)
+
 
     def fit_model(self):
         pass
