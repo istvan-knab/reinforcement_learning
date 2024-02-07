@@ -1,4 +1,4 @@
-# Reinforcement-Learning
+# Reinforcement Learning
 
 
 <img align="left" width="369" height="85" src="https://n120.njszt.hu/img/logo/HUN-REN-SZTAKI-logo.png">
