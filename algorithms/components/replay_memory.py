@@ -9,7 +9,7 @@ class ReplayMemory:
         self.BATCH_SIZE = BATCH_SIZE
         self.memory = deque([], maxlen=BUFFER_SIZE)
 
-    def add(self, *args):
+    def push(self, *args):
         """
         Add new MDP element to queue
         :param Transition: state, reward, next_state, done

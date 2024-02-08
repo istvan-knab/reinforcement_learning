@@ -5,6 +5,7 @@ import gymnasium as gym
 from algorithms.dqn import DQN
 from algorithms.ddpg import DDPG
 from algorithms.td3 import TD3
+from algorithms.tabular_q_learning import TabularQLearning
 from run.log import Logger
 
 
@@ -17,10 +18,12 @@ def read_parameters() -> dict:
     return config
 
 def train_model(config: dict) -> None:
+    # determine environment
+    env = gym.make(config['ENVIRONMENT'], render_mode=config['RENDER_MODE'])
+
     # determine algorithm
-    agent = determine_algorithm(config)
-    #determine environment
-    env = gym.make(config['ENVIRONMENT'])
+    agent = determine_algorithm(config, env)
+
     for i in range(config["EPISODES"]):
         done = False
         state, info = env.reset()
@@ -35,9 +38,11 @@ def test_model(config: dict) -> None:
         while not done:
             pass
 
-def determine_algorithm(config: dict) -> object:
-    if config["ALGORITHM"] == "DDPG": agent = DDPG(config)
-    elif config["ALGORITHM"] == "DQN": agent = DQN(config)
-    elif config["ALGORITHM"] == "TD3": agent = TD3(config)
+def determine_algorithm(config: dict, env) -> object:
+    if config["ALGORITHM"] == "DDPG": agent = DDPG(config, device=config["DEVICE"], env= env)
+    elif config["ALGORITHM"] == "DQN": agent = DQN(config, device=config["DEVICE"], env= env)
+    elif config["ALGORITHM"] == "TD3": agent = TD3(config, device=config["DEVICE"], env= env)
+    elif config["ALGORITHM"] == "Tabular_Q_Learning":agent = TabularQLearning(config, device=config["DEVICE"],
+                                                                              env= env)
 
     return agent

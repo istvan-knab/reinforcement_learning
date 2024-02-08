@@ -25,6 +25,7 @@ DEVICE : cuda
 
 #Environment
 ENVIRONMENT : "CartPole-v1"
+RENDER_MODE : "human"
 
 #RL Signals
-ACTIONS : [-0.1, 0, 0.1]
+ACTIONS : [0, 1]
