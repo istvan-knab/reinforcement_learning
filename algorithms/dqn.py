@@ -2,6 +2,7 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 import torch.optim as optim
+from collections import namedtuple
 
 from algorithms.components.epsilon_greedy import EpsilonGreedy
 from algorithms.components.replay_memory import ReplayMemory
@@ -33,6 +34,9 @@ class DQN(object):
         self.memory = ReplayMemory(config["MEMORY_SIZE"], config["BATCH_SIZE"])
         self.model = NN(config).to(self.device)
         self.target = NN(config).to(self.device)
+        self.optimizer = optim.AdamW(self.model.parameters(), lr=config["ALPHA"], amsgrad=True)
+        self.Transition = namedtuple('Transition',
+                                ('state', 'action', 'next_state', 'reward'))
 
     def training_step(self, state):
         action = self.action_selection.epsilon_greedy_selection()
@@ -40,7 +44,7 @@ class DQN(object):
         reward = torch.tensor([reward], device=self.device)
         done = terminated or truncated
 
-        if terminated:
+        if done:
             next_state = None
             return True
         else:
@@ -58,9 +62,36 @@ class DQN(object):
                                           target_net_state_dict[key] * (1 - self.config["TAU"]))
         self.target.load_state_dict(target_net_state_dict)
 
+        return False
+
+
 
 
 
     def fit_model(self):
-        pass
+        if len(self.memory) < self.config["BATCH_SIZE"]:
+            return
+        transitions = self.memory.sample()
+
+        batch = self.Transition(*zip(*transitions))
+
+        non_final_mask = torch.tensor(tuple(map(lambda s: s is not None,
+                                                batch.next_state)), device=self.device, dtype=torch.bool)
+        non_final_next_states = torch.cat([s for s in batch.next_state
+                                           if s is not None])
+        state_batch = torch.cat(batch.state)
+        action_batch = torch.cat(batch.action)
+        reward_batch = torch.cat(batch.reward)
+
+        state_action_values = self.model(state_batch).gather(1, action_batch)
+        next_state_values = torch.zeros(self.config["BATCH_SIZE"], device=self.device)
+        with torch.no_grad():
+            next_state_values[non_final_mask] = self.target(non_final_next_states).max(1).values
+        expected_state_action_values = (next_state_values * self.config["GAMMA"]) + reward_batch
+        criterion = nn.SmoothL1Loss()
+        loss = criterion(state_action_values, expected_state_action_values.unsqueeze(1))
+        self.optimizer.zero_grad()
+        loss.backward()
+        torch.nn.utils.clip_grad_value_(self.model.parameters(), 100)
+        self.optimizer.step()
 

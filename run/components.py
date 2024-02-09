@@ -30,8 +30,8 @@ def train_model(config: dict) -> None:
         state = torch.tensor(state, dtype=torch.float32, device=config["DEVICE"]).unsqueeze(0)
         agent.action_selection.epsilon_update()
         while not done:
-            agent.training_step(state)
-            done = True
+            done = agent.training_step(state)
+
 
 def test_model(config: dict) -> None:
     # code for training the model

@@ -24,4 +24,7 @@ class ReplayMemory:
         Gives random samples from the memory
         :return: namedtuple containing states, actions, rewards, next_states
         """
-        return random.sample(self.memory, batch_size=self.BATCH_SIZE)
+        return random.sample(self.memory, self.BATCH_SIZE)
+
+    def __len__(self):
+        return len(self.memory)
