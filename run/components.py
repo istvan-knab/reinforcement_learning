@@ -24,12 +24,14 @@ def train_model(config: dict) -> None:
     # determine algorithm
     agent = determine_algorithm(config, env)
 
-    for i in range(config["EPISODES"]):
+    for episode in range(config["EPISODES"]):
         done = False
         state, info = env.reset()
         state = torch.tensor(state, dtype=torch.float32, device=config["DEVICE"]).unsqueeze(0)
+        agent.action_selection.epsilon_update()
         while not done:
             agent.training_step(state)
+            done = True
 
 def test_model(config: dict) -> None:
     # code for training the model
