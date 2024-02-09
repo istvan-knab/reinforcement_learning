@@ -38,8 +38,8 @@ class DQN(object):
         self.Transition = namedtuple('Transition',
                                 ('state', 'action', 'next_state', 'reward'))
 
-    def training_step(self, state):
-        action = self.action_selection.epsilon_greedy_selection()
+    def training_step(self, state, env):
+        action = self.action_selection.epsilon_greedy_selection(self.model, state)
         observation, reward, terminated, truncated, _ = self.env.step(action)
         reward = torch.tensor([reward], device=self.device)
         done = terminated or truncated
