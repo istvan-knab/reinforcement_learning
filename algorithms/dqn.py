@@ -34,22 +34,24 @@ class DQN(object):
         self.memory = ReplayMemory(config["MEMORY_SIZE"], config["BATCH_SIZE"])
         self.model = NN(config).to(self.device)
         self.target = NN(config).to(self.device)
+        self.target.load_state_dict(self.model.state_dict())
         self.optimizer = optim.AdamW(self.model.parameters(), lr=config["ALPHA"], amsgrad=True)
         self.Transition = namedtuple('Transition',
                                 ('state', 'action', 'next_state', 'reward'))
 
-    def training_step(self, state, env):
+    def training_step(self, state, env, sum_reward):
         action = self.action_selection.epsilon_greedy_selection(self.model, state)
         observation, reward, terminated, truncated, _ = self.env.step(action)
         reward = torch.tensor([reward], device=self.device)
+        sum_reward += reward
         done = terminated or truncated
 
         if done:
             next_state = None
-            return True
+            return True, sum_reward
         else:
             next_state = torch.tensor(observation, dtype=torch.float32, device=self.device).unsqueeze(0)
-
+        action = torch.tensor([[action]], dtype=torch.long, device=self.device)
         self.memory.push(state, action, next_state, reward)
         state = next_state
 
@@ -62,7 +64,7 @@ class DQN(object):
                                           target_net_state_dict[key] * (1 - self.config["TAU"]))
         self.target.load_state_dict(target_net_state_dict)
 
-        return False
+        return False, sum_reward
 
 
 
@@ -79,6 +81,7 @@ class DQN(object):
                                                 batch.next_state)), device=self.device, dtype=torch.bool)
         non_final_next_states = torch.cat([s for s in batch.next_state
                                            if s is not None])
+
         state_batch = torch.cat(batch.state)
         action_batch = torch.cat(batch.action)
         reward_batch = torch.cat(batch.reward)

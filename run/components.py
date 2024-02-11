@@ -14,7 +14,6 @@ def read_parameters() -> dict:
 
     with open('config.yaml', 'r') as file:
         config = yaml.safe_load(file)
-        print(type(config))
     return config
 
 def train_model(config: dict) -> None:
@@ -29,8 +28,12 @@ def train_model(config: dict) -> None:
         state, info = env.reset()
         state = torch.tensor(state, dtype=torch.float32, device=config["DEVICE"]).unsqueeze(0)
         agent.action_selection.epsilon_update()
+        sum_reward = 0
         while not done:
-            done = agent.training_step(state, env)
+            done, sum_reward = agent.training_step(state, env, sum_reward)
+            if done:
+                print(sum_reward, agent.action_selection.config["EPSILON"])
+
 
 
 def test_model(config: dict) -> None:

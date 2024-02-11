@@ -1,13 +1,13 @@
 #hyperparameters
-ALPHA: 0.001
+ALPHA: 0.1
 GAMMA: 0.99
 BATCH_SIZE: 1024
 EPSILON: 1.0
 EPSILON_DECAY: 0.997
 MEMORY_SIZE: 10000
-EPISODES : 300
+EPISODES : 1000
 MAX_STEP : 500
-TAU : 10
+TAU : 0.009
 SEED : 0
 
 #Algorithm
@@ -21,7 +21,7 @@ state_size : 4
 action_size : 2
 
 #hardware
-DEVICE : cuda
+DEVICE : cpu
 
 #Environment
 ENVIRONMENT : "CartPole-v1"

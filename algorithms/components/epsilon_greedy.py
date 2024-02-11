@@ -8,15 +8,18 @@ class EpsilonGreedy:
 
         if random.random() < self.config['EPSILON']:
             "Random exploratory step"
-            return random.choice(self.config['ACTIONS'])
+            action = random.choice(self.config['ACTIONS'])
+
+            return action
         else:
             "Greedy exploitation step"
             with torch.no_grad():
-                state = torch.FloatTensor(state).detach()
                 model.eval()
                 q_calc = model(state)
                 model.train()
-                action = torch.argmax(q_calc)
+                action = int(torch.argmax(q_calc))
+                print(action)
+
                 return action
 
     def epsilon_update(self):
