@@ -64,12 +64,7 @@ class DQN(object):
 
 
     def update_target(self):
-        target_net_state_dict = self.target.state_dict()
-        model_net_state_dict = self.model.state_dict()
-        for key in model_net_state_dict.keys():
-            target_net_state_dict[key] = (model_net_state_dict[key] * self.config["TAU"] +
-                                          target_net_state_dict[key] * (1 - self.config["TAU"]))
-        self.target.load_state_dict(target_net_state_dict)
+        self.target = self.model
 
     def fit_model(self):
         if len(self.memory) < self.config["BATCH_SIZE"]:
