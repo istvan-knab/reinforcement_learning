@@ -18,7 +18,6 @@ class EpsilonGreedy:
                 q_calc = model(state)
                 model.train()
                 action = int(torch.argmax(q_calc))
-                print(action)
 
                 return action
 

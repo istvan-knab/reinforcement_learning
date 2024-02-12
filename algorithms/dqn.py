@@ -39,7 +39,7 @@ class DQN(object):
         self.Transition = namedtuple('Transition',
                                 ('state', 'action', 'next_state', 'reward'))
 
-    def training_step(self, state, env, sum_reward):
+    def training_step(self, state, env, sum_reward, time_step):
         action = self.action_selection.epsilon_greedy_selection(self.model, state)
         observation, reward, terminated, truncated, _ = self.env.step(action)
         reward = torch.tensor([reward], device=self.device)
@@ -56,19 +56,20 @@ class DQN(object):
         state = next_state
 
         self.fit_model()
+        if time_step % self.config["TAU"] == 0:
+            self.update_target()
 
+
+        return False, sum_reward
+
+
+    def update_target(self):
         target_net_state_dict = self.target.state_dict()
         model_net_state_dict = self.model.state_dict()
         for key in model_net_state_dict.keys():
             target_net_state_dict[key] = (model_net_state_dict[key] * self.config["TAU"] +
                                           target_net_state_dict[key] * (1 - self.config["TAU"]))
         self.target.load_state_dict(target_net_state_dict)
-
-        return False, sum_reward
-
-
-
-
 
     def fit_model(self):
         if len(self.memory) < self.config["BATCH_SIZE"]:

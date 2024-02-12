@@ -29,10 +29,14 @@ def train_model(config: dict) -> None:
         state = torch.tensor(state, dtype=torch.float32, device=config["DEVICE"]).unsqueeze(0)
         agent.action_selection.epsilon_update()
         sum_reward = 0
+        time_step = 0
         while not done:
-            done, sum_reward = agent.training_step(state, env, sum_reward)
+            done, sum_reward = agent.training_step(state, env, sum_reward, time_step)
             if done:
                 print(sum_reward, agent.action_selection.config["EPSILON"])
+
+            time_step += 1
+
 
 
 
