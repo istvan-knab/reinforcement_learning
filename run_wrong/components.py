@@ -6,7 +6,7 @@ from algorithms.dqn import DQN
 from algorithms.ddpg import DDPG
 from algorithms.td3 import TD3
 from algorithms.tabular_q_learning import TabularQLearning
-from run.log import Logger
+from run_wrong.log import Logger
 
 
 # Read Parameters

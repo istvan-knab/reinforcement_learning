@@ -1,4 +1,4 @@
-from run.components import read_parameters, test_model
+from run_wrong.components import read_parameters, test_model
 
 if __name__ == '__main__':
 

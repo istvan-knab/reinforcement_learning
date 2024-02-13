@@ -1,0 +1,12 @@
+# Agent
+algorithm : "DQN"
+epsilon : 0.995
+EPISODES : 1000
+
+# Environment
+environment : "CartPole-v1"
+RENDER_MODE : "human"
+
+# Hardware
+DEVICE : cuda
+SEED : 0
