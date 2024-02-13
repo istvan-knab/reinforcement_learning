@@ -16,7 +16,7 @@ class ReplayMemory:
         :return: None
         """
         Transition = namedtuple('Transition',
-                                ('state', 'action', 'next_state', 'reward'))
+                                ('state', 'action', 'next_state', 'reward','done'))
         self.memory.append(Transition(*args))
 
     def sample(self):

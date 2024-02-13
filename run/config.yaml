@@ -1,13 +1,13 @@
 #hyperparameters
-ALPHA: 0.001
-GAMMA: 0.98
+ALPHA: 0.01
+GAMMA: 0.99
 BATCH_SIZE: 128
 EPSILON: 1.0
-EPSILON_DECAY: 0.995
+EPSILON_DECAY: 0.994
 MEMORY_SIZE: 10000
 EPISODES : 1000
 MAX_STEP : 500
-TAU : 10
+TAU : 5
 SEED : 0
 
 #Algorithm
@@ -15,8 +15,8 @@ ALGORITHM : "DQN"
 
 #network information
 HIDDEN_LAYERS:
-  - 64
-  - 16
+  - 128
+  - 128
 state_size : 4
 action_size : 2
 

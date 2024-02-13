@@ -38,6 +38,9 @@ def train_model(config: dict) -> None:
             time_step += 1
 
 
+        agent.update_target()
+
+
 
 
 def test_model(config: dict) -> None:
