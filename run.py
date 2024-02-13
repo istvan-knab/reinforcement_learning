@@ -1,8 +1,13 @@
-import gym
+import gymnasium as gym
 import yaml
-from run.train import train
-from run.test import test
 
+def determine_agent(config) -> object:
+    if config['algorithm'] == 'DQN':
+        pass
+    elif config['algorithm'] == 'DDPG':
+        pass
+    else:
+        raise NotImplementedError
 
 def parameters() -> dict:
 
@@ -10,11 +15,16 @@ def parameters() -> dict:
         config = yaml.safe_load(file)
     return config
 
+def test():
+    pass
+
 if __name__ == '__main__':
     config = parameters()
     env = gym.make(config["environment"])
+    determine_agent()
+
     if config["mode"] == "train":
-        train(env, config)
+        agent.train(env, config)
     else:
         test(env, config)
 
