@@ -4,6 +4,8 @@ import torch.nn.functional as F
 import torch.optim as optim
 from collections import namedtuple
 from collections import OrderedDict
+import gymnasium as gym
+import yaml
 
 from algorithms.DQN.epsilon_greedy import EpsilonGreedy
 from algorithms.DQN.replay_memory import ReplayMemory
@@ -11,19 +13,26 @@ from algorithms.DQN.replay_memory import ReplayMemory
 
 
 class DQNAgent(object):
-    def __init__(self, config: dict, device: str, env: object) -> None:
+    def __init__(self, config: dict) -> None:
         self.config = config
-        self.env = env
-        self.device = device
+        self.dqn_config = self.parameters()
+        self.env = gym.make(config["environment"])
+        self.device = config["DEVICE"]
         self.criterion = nn.MSELoss()
         self.action_selection = EpsilonGreedy(config)
-        self.memory = ReplayMemory(config["MEMORY_SIZE"], config["BATCH_SIZE"])
+        self.memory = ReplayMemory(self.dqn_config["MEMORY_SIZE"], self.dqn_config["BATCH_SIZE"])
         self.model = NN(config).to(self.device)
         self.target = NN(config).to(self.device)
         self.target.load_state_dict(self.model.state_dict())
         self.optimizer = optim.Adam(self.model.parameters(), lr=config["ALPHA"], amsgrad=True)
         self.Transition = namedtuple('Transition',
                                      ('state', 'action', 'next_state', 'reward', 'done'))
+
+    def parameters(self) -> dict:
+
+        with open('algorithms/DQN/dqn_config.yaml', 'r') as file:
+            dqn_config = yaml.safe_load(file)
+        return dqn_config
 
     def train(self, env: object, config: dict) -> None:
         for episode in range(config["EPISODES"]):

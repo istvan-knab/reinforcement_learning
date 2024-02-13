@@ -1,9 +1,10 @@
-import gymnasium as gym
 import yaml
+
+from algorithms.DQN.dqn import DQNAgent
 
 def determine_agent(config) -> object:
     if config['algorithm'] == 'DQN':
-        pass
+        return DQNAgent(config)
     elif config['algorithm'] == 'DDPG':
         pass
     else:
@@ -20,8 +21,7 @@ def test():
 
 if __name__ == '__main__':
     config = parameters()
-    env = gym.make(config["environment"])
-    determine_agent()
+    determine_agent(config)
 
     if config["mode"] == "train":
         agent.train(env, config)
