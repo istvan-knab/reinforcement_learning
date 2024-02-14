@@ -1,14 +1,15 @@
 import random
 import torch
 class EpsilonGreedy:
-    def __init__(self, config):
+    def __init__(self, config, env):
         self.config = config
+        self.env = env
 
     def epsilon_greedy_selection(self, model: object, state):
 
         if random.random() < self.config['EPSILON']:
             "Random exploratory step"
-            action = random.choice(self.config['ACTIONS'])
+            action = self.env.action_space.sample()
 
             return action
         else:

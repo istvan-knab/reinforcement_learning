@@ -6,20 +6,24 @@ from collections import namedtuple
 from collections import OrderedDict
 import gymnasium as gym
 import yaml
+import numpy as np
 
 from algorithms.DQN.epsilon_greedy import EpsilonGreedy
 from algorithms.DQN.replay_memory import ReplayMemory
-
+from algorithms.neural_networks.mlp import NN
+from algorithms.logger import Logger
 
 
 class DQNAgent(object):
     def __init__(self, config: dict) -> None:
         self.config = config
         self.dqn_config = self.parameters()
-        self.env = gym.make(config["environment"])
+        self.env = gym.make(config["environment"], render_mode=config["RENDER_MODE"])
+        config["state_size"] = self.env.observation_space.shape[0]
+        config["action_size"] = self.env.action_space.n
         self.device = config["DEVICE"]
         self.criterion = nn.MSELoss()
-        self.action_selection = EpsilonGreedy(config)
+        self.action_selection = EpsilonGreedy(config, self.env)
         self.memory = ReplayMemory(self.dqn_config["MEMORY_SIZE"], self.dqn_config["BATCH_SIZE"])
         self.model = NN(config).to(self.device)
         self.target = NN(config).to(self.device)
@@ -27,6 +31,7 @@ class DQNAgent(object):
         self.optimizer = optim.Adam(self.model.parameters(), lr=config["ALPHA"], amsgrad=True)
         self.Transition = namedtuple('Transition',
                                      ('state', 'action', 'next_state', 'reward', 'done'))
+        self.logger = Logger(config)
 
     def parameters(self) -> dict:
 
@@ -34,20 +39,21 @@ class DQNAgent(object):
             dqn_config = yaml.safe_load(file)
         return dqn_config
 
-    def train(self, env: object, config: dict) -> None:
+    def train(self, config: dict) -> None:
         for episode in range(config["EPISODES"]):
 
-            state = env.reset()
+            state, info = self.env.reset()
+            state = torch.tensor(state, dtype=torch.float32, device=config["DEVICE"]).unsqueeze(0)
             done = False
             self.action_selection.epsilon_update()
             sum_reward = 0
 
             while not done:
 
-                action = self.action_selection(self.model, state)
+                action = self.action_selection.epsilon_greedy_selection(self.model, state)
                 observation, reward, terminated, truncated, _ = self.env.step(action)
 
-                reward = torch.tensor([reward], device=self.device)
+                reward = torch.tensor([[reward]], device=self.device)
                 sum_reward += reward
                 done = torch.tensor([int(terminated or truncated)], device=self.device)
                 if done:
@@ -62,12 +68,15 @@ class DQNAgent(object):
 
                 self.fit_model()
 
+            self.logger.step(episode, sum_reward, self.config)
+            if episode % self.dqn_config["TAU"]:
+                self.target.load_state_dict(OrderedDict(self.model.state_dict()))
+
     def fit_model(self) -> None:
-        if len(self.memory) < self.config["BATCH_SIZE"]:
+        if len(self.memory) < self.dqn_config["BATCH_SIZE"]:
             return
         sample = self.memory.sample()
         batch = self.Transition(*zip(*sample))
-
         state_batch = torch.cat(batch.state)
         action_batch = torch.cat(batch.action)
         reward_batch = torch.cat(batch.reward)
@@ -78,10 +87,10 @@ class DQNAgent(object):
             output_next_state_batch = self.target(next_state_batch).detach()
             output_next_state_batch = torch.max(output_next_state_batch, 1)[0].detach()
             output_next_state_batch = torch.reshape(output_next_state_batch,
-                                                    (self.config["BATCH_SIZE"], -1)).detach()
+                                                    (self.dqn_config["BATCH_SIZE"], -1)).detach()
 
-        y_batch = reward_batch + self.config['GAMMA'] * output_next_state_batch * (1 - done_batch)
-        output = torch.reshape(self.model(state_batch), (self.config["BATCH_SIZE"], -1))
+        y_batch = reward_batch + self.config['GAMMA'] * output_next_state_batch
+        output = torch.reshape(self.model(state_batch), (self.dqn_config["BATCH_SIZE"], -1))
         q_values = torch.gather(output, 1, action_batch)
 
         loss = self.criterion(q_values, y_batch)

@@ -1,6 +1,7 @@
 import yaml
 
 from algorithms.DQN.dqn import DQNAgent
+from algorithms.DDPG.ddpg import DDPGAgent
 
 def determine_agent(config) -> object:
     if config['algorithm'] == 'DQN':
@@ -12,7 +13,7 @@ def determine_agent(config) -> object:
 
 def parameters() -> dict:
 
-    with open('config.yaml', 'r') as file:
+    with open('run/config.yaml', 'r') as file:
         config = yaml.safe_load(file)
     return config
 
@@ -21,12 +22,12 @@ def test():
 
 if __name__ == '__main__':
     config = parameters()
-    determine_agent(config)
+    agent = determine_agent(config)
 
     if config["mode"] == "train":
-        agent.train(env, config)
+        agent.train(config)
     else:
-        test(env, config)
+        test(config)
 
     print("Done.........")
 

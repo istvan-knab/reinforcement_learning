@@ -11,3 +11,9 @@ RENDER_MODE : "human"
 DEVICE : cuda
 SEED : 0
 mode : "train"
+
+#Hyperparameters
+ALPHA : 0.001
+GAMMA : 0.99
+EPSILON : 1.0
+EPSILON_DECAY : 0.995
