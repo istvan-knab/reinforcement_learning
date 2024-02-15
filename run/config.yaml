@@ -1,6 +1,6 @@
 # Agent
 algorithm : "DQN"
-EPISODES : 1000
+EPISODES : 500
 
 # Environment
 environment : "CartPole-v1"
@@ -15,4 +15,4 @@ mode : "train"
 ALPHA : 0.001
 GAMMA : 0.99
 EPSILON : 1.0
-EPSILON_DECAY : 0.9978
+EPSILON_DECAY : 0.994

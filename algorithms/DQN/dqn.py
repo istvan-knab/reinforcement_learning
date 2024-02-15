@@ -57,11 +57,9 @@ class DQNAgent(object):
                 reward = torch.tensor([[reward]], device=self.device)
                 sum_reward += reward
                 done = torch.tensor([int(terminated or truncated)], device=self.device)
-                if done:
-                    next_state = None
-                    break
-                else:
-                    next_state = torch.tensor(observation, dtype=torch.float32, device=self.device).unsqueeze(0)
+
+
+                next_state = torch.tensor(observation, dtype=torch.float32, device=self.device).unsqueeze(0)
                 action = torch.tensor([[action]], dtype=torch.long, device=self.device)
 
                 self.memory.push(state, action, next_state, reward, done)
@@ -69,13 +67,19 @@ class DQNAgent(object):
 
                 self.fit_model()
 
+                if done:
+                    break
+
             self.logger.step(episode, sum_reward, self.config, self.loss)
             if episode % self.dqn_config["TAU"]:
                 self.target.load_state_dict(OrderedDict(self.model.state_dict()))
+                self.target = self.model
+
+
 
     def fit_model(self) -> None:
         if len(self.memory) < self.dqn_config["BATCH_SIZE"]:
-            return
+            return 0
         sample = self.memory.sample()
         batch = self.Transition(*zip(*sample))
 
@@ -91,7 +95,7 @@ class DQNAgent(object):
             output_next_state_batch = torch.reshape(output_next_state_batch,
                                                     (self.dqn_config["BATCH_SIZE"], -1)).detach()
 
-        y_batch = reward_batch + self.config['GAMMA'] * output_next_state_batch
+        y_batch = reward_batch + self.config['GAMMA'] * output_next_state_batch * (1- done_batch).view(-1, 1)
         output = torch.reshape(self.model(state_batch), (self.dqn_config["BATCH_SIZE"], -1))
         q_values = torch.gather(output, 1, action_batch)
 
@@ -102,7 +106,6 @@ class DQNAgent(object):
         loss.backward()
         for param in self.model.parameters():
             param.grad.data.clamp_(-1, 1)
-
         self.optimizer.step()
 
 
