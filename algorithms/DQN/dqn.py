@@ -28,10 +28,11 @@ class DQNAgent(object):
         self.model = NN(config).to(self.device)
         self.target = NN(config).to(self.device)
         self.target.load_state_dict(self.model.state_dict())
-        self.optimizer = optim.Adam(self.model.parameters(), lr=config["ALPHA"], amsgrad=True)
+        self.optimizer = optim.Adam(self.model.parameters(), lr=config["ALPHA"], amsgrad=False)
         self.Transition = namedtuple('Transition',
                                      ('state', 'action', 'next_state', 'reward', 'done'))
         self.logger = Logger(config)
+        self.loss = 0
 
     def parameters(self) -> dict:
 
@@ -68,7 +69,7 @@ class DQNAgent(object):
 
                 self.fit_model()
 
-            self.logger.step(episode, sum_reward, self.config)
+            self.logger.step(episode, sum_reward, self.config, self.loss)
             if episode % self.dqn_config["TAU"]:
                 self.target.load_state_dict(OrderedDict(self.model.state_dict()))
 
@@ -103,3 +104,5 @@ class DQNAgent(object):
             param.grad.data.clamp_(-1, 1)
 
         self.optimizer.step()
+
+

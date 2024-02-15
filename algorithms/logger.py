@@ -41,6 +41,7 @@ class Logger(object):
         self.reward = int(args[1])
         self.epsilon = args[2]["EPSILON"]
         self.config = args[2]
+        self.loss = args[3]
 
         self.console()
         self.neptune()
@@ -48,6 +49,7 @@ class Logger(object):
     def neptune(self):
         self.run["train/reward"].append(self.reward)
         self.run["train/epsilon"].append(self.config["EPSILON"])
+        self.run["train/loss"].append(self.loss)
 
 
     def console(self):
