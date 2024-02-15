@@ -5,7 +5,6 @@ class Logger(object):
         algorithm = config['algorithm']
         environment = config['environment']
         RENDER_MODE = config['RENDER_MODE']
-        epsilon = config['epsilon']
         EPISODES = config['EPISODES']
         SEED = config['SEED']
         ALPHA = config['ALPHA']
@@ -18,7 +17,6 @@ class Logger(object):
         print(f"Algorithm : {algorithm}")
         print(f"Environment : {environment}")
         print(f"RENDER_MODE : {RENDER_MODE}")
-        print(f"Epsilon : {epsilon}")
         print(f"EPISODES : {EPISODES}")
         print(f"SEED : {SEED}")
         print(f"ALPHA : {ALPHA}")
@@ -48,7 +46,9 @@ class Logger(object):
         self.neptune()
 
     def neptune(self):
-        self.run["learning_rate"].append(self.config["ALPHA"])
+        self.run["train/reward"].append(self.reward)
+        self.run["train/epsilon"].append(self.config["EPSILON"])
+
 
     def console(self):
         print("================================================")

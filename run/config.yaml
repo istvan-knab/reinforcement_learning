@@ -1,6 +1,5 @@
 # Agent
 algorithm : "DQN"
-epsilon : 0.995
 EPISODES : 1000
 
 # Environment
@@ -16,4 +15,4 @@ mode : "train"
 ALPHA : 0.001
 GAMMA : 0.99
 EPSILON : 1.0
-EPSILON_DECAY : 0.995
+EPSILON_DECAY : 0.9978

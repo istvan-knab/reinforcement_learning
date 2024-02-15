@@ -77,6 +77,7 @@ class DQNAgent(object):
             return
         sample = self.memory.sample()
         batch = self.Transition(*zip(*sample))
+
         state_batch = torch.cat(batch.state)
         action_batch = torch.cat(batch.action)
         reward_batch = torch.cat(batch.reward)
