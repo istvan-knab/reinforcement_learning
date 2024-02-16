@@ -15,7 +15,9 @@ from algorithms.logger import Logger
 
 
 class DQNAgent(object):
+
     def __init__(self, config: dict) -> None:
+
         self.config = config
         self.dqn_config = self.parameters()
         self.env = gym.make(config["environment"], render_mode=config["RENDER_MODE"])
@@ -35,14 +37,21 @@ class DQNAgent(object):
         self.loss = 0
 
     def parameters(self) -> dict:
-
+        """
+        Reading algorithm specific parameters from a config file
+        :return: dict
+        """
         with open('algorithms/DQN/dqn_config.yaml', 'r') as file:
             dqn_config = yaml.safe_load(file)
         return dqn_config
 
     def train(self, config: dict) -> None:
+        """
+        Training loop
+        :param config: it contains all the necessary rl parameters, that are not DQN specific
+        :return:
+        """
         for episode in range(config["EPISODES"]):
-
             state, info = self.env.reset()
             state = torch.tensor(state, dtype=torch.float32, device=config["DEVICE"]).unsqueeze(0)
             done = False
@@ -78,6 +87,10 @@ class DQNAgent(object):
 
 
     def fit_model(self) -> None:
+        """
+        Gradient computation based on the sampled batches
+        :return: None
+        """
         if len(self.memory) < self.dqn_config["BATCH_SIZE"]:
             return 0
         sample = self.memory.sample()

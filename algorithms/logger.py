@@ -36,7 +36,13 @@ class Logger(object):
         self.run["parameters"] = params
 
 
-    def step(self,*args):
+    def step(self,*args) -> None:
+        """
+        Identification of needed values for logging purposes
+        Calling the log function to console and online neptune logger
+        :param args: [episode, reward, config, loss]
+        :return: None
+        """
         self.episode = args[0]
         self.reward = int(args[1])
         self.epsilon = args[2]["EPSILON"]
@@ -46,13 +52,21 @@ class Logger(object):
         self.console()
         self.neptune()
 
-    def neptune(self):
+    def neptune(self) -> None:
+        """
+        Neptune callback, visual evaluation ov learning process
+        :return: None
+        """
         self.run["train/reward"].append(self.reward)
         self.run["train/epsilon"].append(self.config["EPSILON"])
         self.run["train/loss"].append(self.loss)
 
 
-    def console(self):
+    def console(self) -> None:
+        """
+        Required parameters for learning evaluation on the console
+        :return:
+        """
         print("================================================")
         print(f"Episode {self.episode}")
         print(f"Reward {self.reward}")
