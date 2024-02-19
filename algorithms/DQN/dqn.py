@@ -12,6 +12,7 @@ from algorithms.DQN.epsilon_greedy import EpsilonGreedy
 from algorithms.DQN.replay_memory import ReplayMemory
 from algorithms.neural_networks.mlp import NN
 from algorithms.logger import Logger
+from algorithms.io import IO
 
 
 class DQNAgent(object):
@@ -33,6 +34,7 @@ class DQNAgent(object):
         self.optimizer = optim.Adam(self.model.parameters(), lr=config["ALPHA"], amsgrad=False)
         self.Transition = namedtuple('Transition',
                                      ('state', 'action', 'next_state', 'reward', 'done'))
+        self.io = IO()
         self.logger = Logger(config)
         self.loss = 0
 
@@ -83,6 +85,8 @@ class DQNAgent(object):
             if episode % self.dqn_config["TAU"]:
                 self.target.load_state_dict(OrderedDict(self.model.state_dict()))
                 self.target = self.model
+
+        self.io.save_model(self.model, self.config)
 
 
 
