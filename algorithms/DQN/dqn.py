@@ -116,6 +116,7 @@ class DQNAgent(object):
         output = torch.reshape(self.model(state_batch), (self.dqn_config["BATCH_SIZE"], -1))
         q_values = torch.gather(output, 1, action_batch)
 
+
         loss = self.criterion(q_values, y_batch)
         self.loss = float(loss)
 

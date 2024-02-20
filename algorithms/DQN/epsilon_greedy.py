@@ -7,7 +7,7 @@ class EpsilonGreedy:
 
     def epsilon_greedy_selection(self, model: object, state):
 
-        if random.random() < self.config['EPSILON']:
+        if (random.random() < self.config['EPSILON']) and (self.config['EPSILON'] > self.config['EPSILON_THRESHOLD']):
             "Random exploratory step"
             action = self.env.action_space.sample()
 
