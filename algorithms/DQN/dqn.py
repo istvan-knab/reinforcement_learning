@@ -59,7 +59,8 @@ class DQNAgent(object):
             state = torch.tensor(state, dtype=torch.float32, device=config["DEVICE"]).unsqueeze(0)
             done = False
             self.action_selection.epsilon_update()
-            sum_reward = 0
+            episode_reward = 0
+            episode_loss = 0
 
             while not done:
 
@@ -67,7 +68,7 @@ class DQNAgent(object):
                 observation, reward, terminated, truncated, _ = self.env.step(action)
 
                 reward = torch.tensor([[reward]], device=self.device)
-                sum_reward += reward
+                episode_reward += reward
                 done = torch.tensor([int(terminated or truncated)], device=self.device)
 
 
@@ -77,12 +78,13 @@ class DQNAgent(object):
                 self.memory.push(state, action, next_state, reward, done)
                 state = next_state
 
-                self.fit_model()
+                loss = self.fit_model()
+                episode_loss += loss
 
                 if done:
                     break
 
-            self.logger.step(episode, sum_reward, self.config, self.loss)
+            self.logger.step(episode, episode_reward, self.config, episode_loss)
             if episode % self.dqn_config["TAU"]:
                 self.target.load_state_dict(OrderedDict(self.model.state_dict()))
                 self.target = self.model
@@ -126,5 +128,7 @@ class DQNAgent(object):
         for param in self.model.parameters():
             param.grad.data.clamp_(-1, 1)
         self.optimizer.step()
+
+        return loss
 
 
