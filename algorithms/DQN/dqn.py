@@ -5,6 +5,7 @@ import torch.optim as optim
 from collections import namedtuple
 from collections import OrderedDict
 import gymnasium as gym
+import atari_py
 import yaml
 import numpy as np
 
@@ -112,7 +113,7 @@ class DQNAgent(object):
             output_next_state_batch = torch.reshape(output_next_state_batch,
                                                     (self.dqn_config["BATCH_SIZE"], -1)).detach()
 
-        y_batch = reward_batch + self.config['GAMMA'] * output_next_state_batch * (1- done_batch).view(-1, 1)
+        y_batch = (reward_batch + self.config['GAMMA'] * output_next_state_batch * (1- done_batch).view(-1, 1)).float()
         output = torch.reshape(self.model(state_batch), (self.dqn_config["BATCH_SIZE"], -1))
         q_values = torch.gather(output, 1, action_batch)
 
