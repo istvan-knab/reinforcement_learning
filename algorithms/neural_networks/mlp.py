@@ -7,9 +7,9 @@ class NN(nn.Module):
     """
     def __init__(self, config):
         super(NN, self).__init__()
-        self.layer1 = nn.Linear(config["state_size"], 256)
-        self.layer2 = nn.Linear(256, 256)
-        self.layer3 = nn.Linear(256, config["action_size"])
+        self.layer1 = nn.Linear(config["state_size"], 128)
+        self.layer2 = nn.Linear(128, 128)
+        self.layer3 = nn.Linear(128, config["action_size"])
 
     # Called with either one element to determine next action, or a batch
     # during optimization. Returns tensor([[left0exp,right0exp]...]).
