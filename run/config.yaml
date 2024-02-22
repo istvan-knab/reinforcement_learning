@@ -1,22 +1,22 @@
 # Agent
 algorithm : "DQN"
-EPISODES : 2000
+EPISODES : 600
 
 # Environment
-environment : "LunarLander-v2"
+environment : "CartPole-v1"
 RENDER_MODE : None
 
 # Run
 DEVICE : cuda
 SEED : 0
-mode : "train"
+mode : "test"
 
 #Hyperparameters
-ALPHA : 0.001
+ALPHA : 0.01
 GAMMA : 0.99
 EPSILON : 1.0
-EPSILON_DECAY : 0.9965
+EPSILON_DECAY : 0.998
 EPSILON_THRESHOLD: 0.1
 
 #Save
-PATH : "algorithms/neural_networks/models"
+PATH : "algorithms/neural_networks/models/CartPole-v11708612097.9303467.pth"

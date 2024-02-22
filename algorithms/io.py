@@ -7,7 +7,7 @@ class IO(object):
         pass
 
     def save_model(self, model, config):
-        PATH = config['PATH'] + '/' + str(time.time())
+        PATH = config['PATH'] + '/' +str(config["environment"]) + str(time.time()) + ".pth"
         torch.save(model.state_dict(), PATH)
 
 

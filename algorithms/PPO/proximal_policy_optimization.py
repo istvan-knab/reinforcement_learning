@@ -1,6 +1,6 @@
-class PolicyGradientAgent(object):
-    def __init__(self):
+class PPOAgent(object):
+    def __init__(self, config):
         pass
 
-    def train(self, env):
+    def train(self, config):
         pass
