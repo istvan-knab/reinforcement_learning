@@ -20,11 +20,11 @@ def parameters() -> dict:
         config = yaml.safe_load(file)
     return config
 
-def test(config: dict, agent: object) -> None:
+def test(config: dict) -> None:
     #torch load model
     PATH = config["PATH"]
-    agent = torch.load(PATH)
-    agent.eval()
+    model = torch.load(PATH)
+    model.eval()
 
     env = gym.make(config["environment"])
     config["EPSILON"] = 0
@@ -49,7 +49,7 @@ if __name__ == '__main__':
     if config["mode"] == "train":
         agent.train(config)
     else:
-        test(config, agent)
+        test(config)
 
     print("Done.........")
 
