@@ -20,25 +20,30 @@ def parameters() -> dict:
         config = yaml.safe_load(file)
     return config
 
-def test(config: dict) -> None:
+def test(config: dict, agent: object) -> None:
     #torch load model
-    PATH = config["PATH"]
-    model = torch.load(PATH)
-    model.eval()
+    agent = agent.model
+    PATH = config["PATH_TEST"]
+    agent.load_state_dict(torch.load(PATH))
+    agent.eval()
 
-    env = gym.make(config["environment"])
+    env = gym.make(config["environment"], render_mode=config["RENDER_MODE"])
     config["EPSILON"] = 0
     action_selection = EpsilonGreedy(config, env)
     for i in range(config["EPISODES"]):
-        state = env.reset
+        state, info = env.reset()
+        state = torch.tensor(state, dtype=torch.float32, device=config["DEVICE"]).unsqueeze(0)
         done = False
         episode_reward = 0
         while not done:
             action = action_selection.epsilon_greedy_selection(agent, state)
             observation, reward, terminated, truncated, _ = env.step(action)
             episode_reward += reward
+            if config["RENDER_MODE"] == "human":
+                env.render()
             if terminated or truncated:
                 done = True
+                print(f"Episode finished with reward : {episode_reward}")
             if done:
                 break
 
@@ -49,7 +54,7 @@ if __name__ == '__main__':
     if config["mode"] == "train":
         agent.train(config)
     else:
-        test(config)
+        test(config, agent)
 
     print("Done.........")
 
