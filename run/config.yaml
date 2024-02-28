@@ -1,10 +1,10 @@
 # Agent
 algorithm : "DQN"
-EPISODES : 1000
+EPISODES : 700
 
 # Environment
 environment : "CartPole-v1"
-RENDER_MODE : None
+RENDER_MODE : "human"
 
 # Run
 DEVICE : cuda
@@ -15,9 +15,9 @@ mode : "train"
 ALPHA : 0.001
 GAMMA : 0.99
 EPSILON : 1.0
-EPSILON_DECAY : 0.997
-EPSILON_THRESHOLD: 0.2
+EPSILON_DECAY : 0.9975
+EPSILON_THRESHOLD: 0.1
 
 #Save
 PATH : "algorithms/neural_networks/models"
-PATH_TEST : "algorithms/neural_networks/models/CartPole-v11709036509.6563454.pth"
+PATH_TEST : "algorithms/neural_networks/models/CartPole-v11709124021.985185.pth"

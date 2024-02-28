@@ -8,6 +8,6 @@ class IO(object):
 
     def save_model(self, model, config):
         PATH = config['PATH'] + '/' +str(config["environment"]) + str(time.time()) + ".pth"
-        torch.save(model.state_dict(), PATH)
+        torch.save(model, PATH)
 
 
