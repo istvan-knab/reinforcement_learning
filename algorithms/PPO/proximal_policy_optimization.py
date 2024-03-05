@@ -19,4 +19,16 @@ class PPOAgent(object):
             episode_reward = 0
             episode_loss = 0
             while not done:
-                pass
+                self.run_policy()
+                self.compute_advantage_estimates()
+            self.optimize_policy()
+
+
+    def run_policy(self):
+        pass
+
+    def compute_advantage_estimates(self):
+        pass
+
+    def optimize_policy(self):
+        pass
