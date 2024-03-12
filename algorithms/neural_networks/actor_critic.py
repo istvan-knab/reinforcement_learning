@@ -10,8 +10,7 @@ class ActorNetwork(nn.Module):
                                    nn.Linear(256, 256), nn.ReLU(),
                                    nn.Linear(256, output_size), nn.Softmax(dim=-1))
         self.optimizer = optim.Adam(self.parameters(), lr = config["ALPHA"])
-        self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-        self.to(self.device)
+
 
     def forward(self, x):
         distribution = self.actor(x)
@@ -26,8 +25,7 @@ class CriticNetwork(nn.Module):
                                     nn.Linear(256, 256), nn.ReLU(),
                                     nn.Linear(256, 1))
         self.optimizer = optim.Adam(self.parameters(), lr = config["ALPHA"])
-        self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-        self.to(self.device)
+
 
     def forward(self, state):
         value = self.critic(state)

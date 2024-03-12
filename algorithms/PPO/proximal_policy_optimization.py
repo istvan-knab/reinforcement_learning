@@ -40,14 +40,14 @@ class PPOAgent(object):
                 action, probability, value = self.choose_action(state)
                 next_state, reward, done, terminated, truncated = self.env.step(action)
                 self.memory.push(state, action, probability, value, reward, done)
-                score = reward
+                score += reward
                 if number_of_steps % self.ppo_config["TAU"] == 0:
                     self.fit()
                 state = next_state
                 if terminated or truncated:
                     done = True
-                    score_history.append(score)
-                    avg_score.append(np.mean(score_history[100:]))
+            score_history.append(score)
+            avg_score.append(np.mean(score_history[100:]))
             #self.logger.step(episode)
 
 
@@ -65,9 +65,9 @@ class PPOAgent(object):
         return action, probabilities, value
 
     def fit(self):
-        losses = 0
+
         for run_policy_iteration in range(self.ppo_config["POLICY_ITERATIONS"]):
-            states, actions, probabilities, values,\
+            state_batch, action_batch, old_probabilities_batch, values,\
             rewards, dones, batches = self.memory.generate_batch()
             advantages = np.zeros(len(rewards), dtype=np.float32)
             for t in range(len(rewards)-1):
@@ -79,21 +79,21 @@ class PPOAgent(object):
                 advantages[t] = a_t
             advantages = torch.tensor(advantages, dtype=torch.float32)
             values = torch.tensor(values, dtype=torch.float32)
-            for batch in batches:
-                states = torch.tensor(states[batch], dtype=torch.float32)
-                old_probabilities = torch.tensor(probabilities[batch], dtype=torch.float32)
-                actions = torch.tensor(actions[batch], dtype=torch.int32)
+            for element in batches:
+                states = torch.tensor(state_batch[element], dtype=torch.float32)
+                old_probabilities = torch.tensor(old_probabilities_batch[element], dtype=torch.float32)
+                actions = torch.tensor(action_batch[element], dtype=torch.int32)
 
                 distribution = self.actor(states)
                 critic_value = self.critic(states)
                 new_probabilities = distribution.log_prob(actions)
                 probability_ratio = new_probabilities.exp() / old_probabilities.exp()
-                weighted_probabilities = advantages[batch] * probability_ratio
+                weighted_probabilities = advantages[element] * probability_ratio
                 weighted_clipped_probabilities = torch.clamp(probability_ratio, 1 - self.ppo_config["CLIP_PROBABILITY"],
-                                                             1 + self.ppo_config["CLIP_PROBABILITY"])  * advantages[batch]
+                                                             1 + self.ppo_config["CLIP_PROBABILITY"])  * advantages[element]
                 actor_loss = - torch.min(weighted_probabilities, weighted_clipped_probabilities).mean()
 
-                returns = advantages[batch] + values[batch]
+                returns = advantages[element] + values[element]
                 critic_loss = (returns - critic_value) ** 2
                 critic_loss = critic_loss.mean()
                 total_loss = actor_loss + 0.5 * critic_loss

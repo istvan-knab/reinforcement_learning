@@ -5,9 +5,7 @@ import torch.optim as optim
 from collections import namedtuple
 from collections import OrderedDict
 import gymnasium as gym
-import atari_py
 import yaml
-import numpy as np
 
 from algorithms.DQN.epsilon_greedy import EpsilonGreedy
 from algorithms.DQN.replay_memory import ReplayMemory
