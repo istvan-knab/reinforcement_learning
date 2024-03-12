@@ -31,7 +31,6 @@ class PPOAgent(object):
         score_history = []
         avg_score = []
         number_of_steps = 0
-        last = 0
         for episode in range(config["EPISODES"]):
             state, _  = self.env.reset()
             done = False
@@ -41,21 +40,20 @@ class PPOAgent(object):
                 action, probability, value = self.choose_action(state)
                 next_state, reward, done, terminated, truncated = self.env.step(action)
                 self.memory.push(state, action, probability, value, reward, done)
-                score += reward
-                if number_of_steps % self.ppo_config["TAU"]:
-                    # TODO
-                    losses = self.fit()
+                score = reward
+                if number_of_steps % self.ppo_config["TAU"] == 0:
+                    self.fit()
                 state = next_state
                 if terminated or truncated:
                     done = True
                     score_history.append(score)
-                    last = avg_score.append(np.mean(score_history[100:]))
-            self.logger.step(episode)
+                    avg_score.append(np.mean(score_history[100:]))
+            #self.logger.step(episode)
 
 
 
     def choose_action(self, state):
-        state = torch.tensor([state], dtype=torch.float32, device=self.config["DEVICE"])
+        state = torch.tensor([state], dtype=torch.float32)
         distribution = self.actor(state)
         value = self.critic(state)
         action = distribution.sample()
@@ -79,12 +77,12 @@ class PPOAgent(object):
                     a_t += discount * (rewards[k] + self.config["GAMMA"] * values[k + 1] * (1 - int(dones[k])) - values[k])
                     discount = self.config["GAMMA"] * self.ppo_config["LAMBDA"]
                 advantages[t] = a_t
-            advantages = torch.tensor(advantages, dtype=torch.float32, device=self.config["DEVICE"])
-            values = torch.tensor(values, dtype=torch.float32, device=self.config["DEVICE"])
+            advantages = torch.tensor(advantages, dtype=torch.float32)
+            values = torch.tensor(values, dtype=torch.float32)
             for batch in batches:
-                states = torch.tensor(states[batch], dtype=torch.float32, device=self.config["DEVICE"])
-                old_probabilities = torch.tensor(probabilities[batch], dtype=torch.float32, device=self.config["DEVICE"])
-                actions = torch.tensor(actions[batch], dtype=torch.int32, device=self.config["DEVICE"])
+                states = torch.tensor(states[batch], dtype=torch.float32)
+                old_probabilities = torch.tensor(probabilities[batch], dtype=torch.float32)
+                actions = torch.tensor(actions[batch], dtype=torch.int32)
 
                 distribution = self.actor(states)
                 critic_value = self.critic(states)
@@ -102,12 +100,12 @@ class PPOAgent(object):
 
                 self. actor.optimizer.zero_grad()
                 self.critic.optimizer.zero_grad()
-                losses += total_loss.backward()
+                total_loss.backward()
                 self.actor.optimizer.step()
                 self.critic.optimizer.step()
 
         self.memory.clear()
-        return losses
+
 
 
 
