@@ -3,8 +3,8 @@ algorithm : "PPO"
 EPISODES : 700
 
 # Environment
-environment : "CartPole-v1"
-RENDER_MODE : "human"
+environment : "LunarLander-v2"
+RENDER_MODE : None
 
 # Run
 DEVICE : cpu

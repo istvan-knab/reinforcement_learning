@@ -23,6 +23,7 @@ class PPOAgent(object):
         self.critic = CriticNetwork(state_size, config)
         self.memory = Memory(self.ppo_config["BATCH_SIZE"])
         self.logger = Logger(config)
+        self.seed = torch.manual_seed(config["SEED"])
         #TODO:transition also in memory
         #self.transition = namedtuple('Transition', ('state', 'action', ''))
 
@@ -31,29 +32,31 @@ class PPOAgent(object):
         score_history = []
         avg_score = []
         number_of_steps = 0
+        loss = 0
         for episode in range(config["EPISODES"]):
             state, _  = self.env.reset()
             done = False
-            score = 0
+            episode_reward = 0
             while not done:
                 number_of_steps += 1
                 action, probability, value = self.choose_action(state)
-                next_state, reward, done, terminated, truncated = self.env.step(action)
-                self.memory.push(state, action, probability, value, reward, done)
-                score += reward
-                if number_of_steps % self.ppo_config["TAU"] == 0:
-                    self.fit()
-                state = next_state
+                next_state, reward, terminated, truncated, _ = self.env.step(action)
                 if terminated or truncated:
                     done = True
-            score_history.append(score)
+                self.memory.push(state, action, probability, value, reward, done)
+                episode_reward += reward
+                state = next_state
+                if number_of_steps % self.ppo_config["TAU"] == 0:
+                    loss = self.fit()
+
+            score_history.append(episode_reward)
             avg_score.append(np.mean(score_history[100:]))
-            #self.logger.step(episode)
+            self.logger.step(episode, episode_reward, self.config, loss)
 
 
 
     def choose_action(self, state):
-        state = torch.tensor([state], dtype=torch.float32)
+        state = torch.tensor(np.array([state]), dtype=torch.float32)
         distribution = self.actor(state)
         value = self.critic(state)
         action = distribution.sample()
@@ -67,6 +70,7 @@ class PPOAgent(object):
     def fit(self):
 
         for run_policy_iteration in range(self.ppo_config["POLICY_ITERATIONS"]):
+            episode_loss = 0
             state_batch, action_batch, old_probabilities_batch, values,\
             rewards, dones, batches = self.memory.generate_batch()
             advantages = np.zeros(len(rewards), dtype=np.float32)
@@ -97,6 +101,7 @@ class PPOAgent(object):
                 critic_loss = (returns - critic_value) ** 2
                 critic_loss = critic_loss.mean()
                 total_loss = actor_loss + 0.5 * critic_loss
+                episode_loss =+ total_loss
 
                 self. actor.optimizer.zero_grad()
                 self.critic.optimizer.zero_grad()
@@ -105,6 +110,7 @@ class PPOAgent(object):
                 self.critic.optimizer.step()
 
         self.memory.clear()
+        return episode_loss
 
 
 

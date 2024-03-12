@@ -25,6 +25,7 @@ def test(config: dict) -> None:
     PATH = config["PATH_TEST"]
     agent = torch.load(PATH)
     agent.eval()
+    seed = torch.manual_seed(config["SEED"])
 
     env = gym.make(config["environment"], render_mode=config["RENDER_MODE"])
     config["EPSILON"] = 0
