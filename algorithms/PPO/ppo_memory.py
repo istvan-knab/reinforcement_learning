@@ -15,10 +15,10 @@ class Memory:
         batch_start = np.arange(0, number_of_states, self.batch_size, dtype=np.int32)
         indices = np.arange(number_of_states, dtype=np.int32)
         np.random.shuffle(indices)
-        batch_start = [indices[i : i + self.batch_size] for i in batch_start]
+        batches = [indices[i : i + self.batch_size] for i in batch_start]
 
         return np.array(self.states), np.array(self.actions), np.array(self.probabilities),\
-            np.array(self.values), np.array(self.rewards), np.array(self.dones)
+            np.array(self.values), np.array(self.rewards), np.array(self.dones), batches
 
     def push(self, state, action, probability, value, reward, done):
         self.states.append(state)

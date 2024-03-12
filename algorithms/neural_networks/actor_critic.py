@@ -15,7 +15,7 @@ class ActorNetwork(nn.Module):
 
     def forward(self, x):
         distribution = self.actor(x)
-        distribution = Categorical(distribution=distribution)
+        distribution = Categorical(distribution)
 
         return distribution
 
