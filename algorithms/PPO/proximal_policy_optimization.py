@@ -23,7 +23,7 @@ class PPOAgent(object):
         self.critic = CriticNetwork(state_size, config)
         self.memory = Memory(self.ppo_config["BATCH_SIZE"])
         self.logger = Logger(config)
-        self.seed = torch.manual_seed(config["SEED"])
+        self.seed = config["SEED"]
         #TODO:transition also in memory
         #self.transition = namedtuple('Transition', ('state', 'action', ''))
 
@@ -34,7 +34,7 @@ class PPOAgent(object):
         number_of_steps = 0
         loss = 0
         for episode in range(config["EPISODES"]):
-            state, _  = self.env.reset()
+            state, _  = self.env.reset(seed=self.seed)
             done = False
             episode_reward = 0
             while not done:

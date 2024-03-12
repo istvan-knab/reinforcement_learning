@@ -1,9 +1,9 @@
 # Agent
 algorithm : "PPO"
-EPISODES : 700
+EPISODES : 1000
 
 # Environment
-environment : "LunarLander-v2"
+environment : "Acrobot-v1"
 RENDER_MODE : None
 
 # Run
