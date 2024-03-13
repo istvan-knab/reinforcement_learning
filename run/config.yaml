@@ -3,16 +3,16 @@ algorithm : "PPO"
 EPISODES : 1000
 
 # Environment
-environment : "Acrobot-v1"
+environment : "CartPole-v1"
 RENDER_MODE : None
 
 # Run
-DEVICE : cpu
+DEVICE : cuda
 SEED : 0
 mode : "train"
 
 #Hyperparameters
-ALPHA : 0.001
+ALPHA : 0.0003
 GAMMA : 0.99
 EPSILON : 1.0
 EPSILON_DECAY : 0.9975
