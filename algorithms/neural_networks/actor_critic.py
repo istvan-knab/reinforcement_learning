@@ -11,7 +11,6 @@ class ActorNetwork(nn.Module):
                                    nn.Linear(256, output_size), nn.Softmax(dim=-1))
         self.optimizer = optim.Adam(self.parameters(), lr = config["ALPHA"])
 
-
     def forward(self, x):
         distribution = self.actor(x)
         distribution = Categorical(distribution)

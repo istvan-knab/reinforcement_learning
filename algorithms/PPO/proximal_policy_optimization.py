@@ -39,7 +39,7 @@ class PPOAgent(object):
             episode_reward = 0
             while not done:
                 number_of_steps += 1
-                action, probability, value = self.choose_action(state)
+                action, probability, value = self.choose_action(torch.tensor(state))
                 next_state, reward, terminated, truncated, _ = self.env.step(action)
                 if terminated or truncated:
                     done = True
