@@ -6,6 +6,7 @@ from collections import namedtuple
 
 from algorithms.DQN.epsilon_greedy import EpsilonGreedy
 from algorithms.neural_networks.actor_critic import ActorNetwork, CriticNetwork
+from algorithms.neural_networks.actor_critic_continous import ActorNetworkContinous
 from algorithms.PPO.ppo_memory import Memory
 from algorithms.logger import Logger
 from algorithms.io import IO
@@ -18,8 +19,12 @@ class PPOAgent(object):
         self.action_selection = EpsilonGreedy(config, self.env)
         self.config = config
         state_size = self.env.observation_space.shape[0]
-        action_size = self.env.action_space.n
-        self.actor = ActorNetwork(state_size, action_size, config)
+        if isinstance(self.env.action_space, gym.spaces.Discrete):
+            action_size = self.env.action_space.n
+            self.actor = ActorNetwork(state_size, action_size, config)
+        else:
+            action_size = self.env.action_space.shape[0]
+            self.actor = ActorNetworkContinous(state_size, action_size, config)
         self.critic = CriticNetwork(state_size, config)
         self.memory = Memory(self.ppo_config["BATCH_SIZE"])
         self.logger = Logger(config)
@@ -40,6 +45,8 @@ class PPOAgent(object):
             while not done:
                 number_of_steps += 1
                 action, probability, value = self.choose_action(torch.tensor(state))
+                if isinstance(self.env.action_space, gym.spaces.Box):
+                    action = [action]
                 next_state, reward, terminated, truncated, _ = self.env.step(action)
                 if terminated or truncated:
                     done = True
